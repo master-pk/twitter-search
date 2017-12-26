@@ -40,27 +40,30 @@ class SearchTwitter(object):
                 filter &= Q(text__contains=filter_data['text'])
 
         if filter_data.get('start_date'):
-            filter_data &= Q(date__gte=filter_data['start_date'])
+            filter &= Q(date__gte=filter_data['start_date'])
 
         if filter_data.get('end_date'):
-            filter_data &= Q(date__lte=filter_data['end_date'])
+            filter &= Q(date__lte=filter_data['end_date'])
 
         if filter_data.get('date'):
-            filter_data &= Q(date=filter_data['date'])
+            filter &= Q(date=filter_data['date'])
 
         if filter_data.get('lower_retweet_count'):
-            filter_data &= Q(retweet_count__gte=filter_data['lower_retweet_count'])
+            filter &= Q(retweet_count__gte=filter_data['lower_retweet_count'])
 
         if filter_data.get('upper_retweet_count'):
-            filter_data &= Q(retweet_count__lte=filter_data['upper_retweet_count'])
+            filter &= Q(retweet_count__lte=filter_data['upper_retweet_count'])
 
         if filter_data.get('retweet_count'):
-            filter_data &= Q(retweet_count=filter_data['retweet_count'])
+            filter &= Q(retweet_count=filter_data['retweet_count'])
 
         if filter_data.get('is_favorite') is not None:
-            filter_data &= Q(is_favorite=filter_data['is_favorite'])
+            filter &= Q(is_favorite=filter_data['is_favorite'])
 
-        return twitter_serializers.TweetFilterSerializer(instance=twitter_models.Tweets.objects.filter(filter), many=True).data
+        return twitter_serializers.TweetFilterSerializer(
+            instance=twitter_models.Tweets.objects.filter(filter).order_by(filter_data.get('order_by', '-date')),
+            many=True
+        ).data
 
     def format_twitter_data(self, twitter_data):
 
@@ -70,7 +73,7 @@ class SearchTwitter(object):
             # NOTE: Python 2 don't have support for formatting the timezone aware string. Currently doing it with replace
             'date': datetime.datetime.strptime(twitter_data['created_at'].replace('+0000', ''), '%a %b %d %H:%M:%S %Y'),
             'retweet_count': twitter_data.get('retweet_count', 0),
-            'is_favorite': twitter_data.get('favorited'),
+            'is_favorite': twitter_data.get('favorited')
         }
 
     def search(self, filter_data):
@@ -85,7 +88,6 @@ class SearchTwitter(object):
 
         for tweet_data in self.handler.GetSearch(term=term, since=since, count=100):
             tweet_data = self.format_twitter_data(json.loads(str(tweet_data)))
-            print tweet_data
             data_from_twitter.append(tweet_data)
 
         existing_twitter_ids = {twitter_id: True for twitter_id in twitter_models.Tweets.objects.values_list('twitter_id', flat=True)}

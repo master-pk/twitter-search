@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
             name='Tweets',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('text', models.CharField(max_length=140)),
+                ('text', models.TextField()),
                 ('date', models.DateTimeField(null=True)),
-                ('created_at', models.DateTimeField(default=datetime.datetime(2017, 12, 26, 10, 33, 40, 425281))),
+                ('created_at', models.DateTimeField(default=datetime.datetime(2017, 12, 26, 11, 27, 16, 235070))),
                 ('twitter_id', models.CharField(max_length=50)),
                 ('retweet_count', models.IntegerField(default=0)),
                 ('is_favorite', models.NullBooleanField()),

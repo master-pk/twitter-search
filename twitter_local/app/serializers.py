@@ -15,6 +15,7 @@ class TweetFilterSerializer(rest_serializers.ModelSerializer):
     upper_retweet_count = rest_serializers.IntegerField(required=False, write_only=True)
     text_type_choice = rest_serializers.ChoiceField(choices=[1, 2, 3, 4], default=1, write_only=True,
                                                     help_text='1 is for exact match, 2 is for starts with, 3 is for ends with and 4 for contains')
+    order_by = rest_serializers.ChoiceField(choices=['date', 'retweet_count'], default='date', write_only=True)
 
     class Meta:
         model = twitter_models.Tweets
